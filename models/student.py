@@ -13,27 +13,14 @@ class StudentBase(BaseModel):
     address: Optional[AddressBase]
 
 
-class AddressCreate(AddressBase):
-    city: str
-    country: str
-
-
-class StudentCreate(StudentBase):
-    name: str
-    age: int
-    address: AddressCreate
-
-
 class StudentUpdate(StudentBase):
     pass  # Optional fields are already handled in StudentBase
 
 
-class AddressOut(AddressBase):
-    city: str
-    country: str
-
-
-class StudentOut(StudentBase):
+class StudentList(BaseModel):
     name: str
     age: int
-    address: AddressOut
+
+
+class StudentPostResponse(BaseModel):
+    id: str

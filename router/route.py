@@ -1,7 +1,7 @@
 from typing import Optional, List
 from bson.errors import InvalidId
 from fastapi import APIRouter, Query, HTTPException, Path
-from models.student import StudentCreate, StudentOut, StudentUpdate
+from models.student import StudentUpdate, StudentPostResponse, StudentBase, StudentList
 from config.database import db
 from bson import ObjectId
 
@@ -10,15 +10,15 @@ studentRouter = APIRouter()
 students_collection = db["students"]
 
 
-@studentRouter.post("/students", response_model=StudentOut, status_code=201)
-async def create_student(student: StudentCreate):
+@studentRouter.post("/students", response_model=StudentPostResponse, status_code=201)
+async def create_student(student: StudentBase):
     # Convert Pydantic model to dictionary
     student_dict = student.dict()
     result = students_collection.insert_one(student_dict)
     return {"id": str(result.inserted_id)}
 
 
-@studentRouter.get("/students", response_model=List[StudentOut], status_code=200)
+@studentRouter.get("/students", response_model=List[StudentList], status_code=200)
 async def list_students(
         country: Optional[str] = Query(None, description="Filter by country"),
         age: Optional[int] = Query(None, description="Filter by minimum age"),
@@ -35,7 +35,7 @@ async def list_students(
     return students
 
 
-@studentRouter.get("/students/{id}", response_model=StudentOut, status_code=200)
+@studentRouter.get("/students/{id}", response_model=StudentBase, status_code=200)
 async def fetch_student(id: str = Path(..., description="The ID of the student previously created")):
     try:
         if not ObjectId.is_valid(id):
