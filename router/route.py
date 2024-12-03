@@ -31,25 +31,23 @@ async def list_students(
 
     # Fetch data synchronously and convert to a list
     students_cursor = students_collection.find(query, {"_id": 0, "name": 1, "age": 1})
-    students = list(students_cursor)  # Convert cursor to a list
+    students = list(students_cursor)
     return students
 
 
 @studentRouter.get("/students/{id}", response_model=StudentOut, status_code=200)
 async def fetch_student(id: str = Path(..., description="The ID of the student previously created")):
     try:
-        # Validate the ObjectId
         if not ObjectId.is_valid(id):
             raise HTTPException(status_code=400, detail="Invalid ID format")
 
-        # Fetch the student from MongoDB
         student = students_collection.find_one({"_id": ObjectId(id)})
         if not student:
             raise HTTPException(status_code=404, detail="Student not found")
 
         # Transform MongoDB document to the response format
-        student["id"] = str(student["_id"])  # Convert ObjectId to string if needed
-        del student["_id"]  # Remove _id as it's not part of the response model
+        student["id"] = str(student["_id"])
+        del student["_id"]
         return student
 
     except InvalidId:
@@ -62,14 +60,12 @@ async def update_student(
         student: StudentUpdate = None
 ):
     try:
-        # Validate the ObjectId
         if not ObjectId.is_valid(id):
             raise HTTPException(status_code=400, detail="Invalid ID format")
 
         # Convert the incoming data to a dictionary and remove None values
         update_data = {k: v for k, v in student.dict(exclude_unset=True).items() if v is not None}
 
-        # If the 'address' is provided, ensure sub-fields are processed correctly
         if "address" in update_data:
             update_data["address"] = {k: v for k, v in update_data["address"].items() if v is not None}
 
@@ -92,7 +88,6 @@ async def update_student(
 async def delete_student(
         id: str = Path(..., description="The ID of the student to delete")
 ):
-    # Validate the ObjectId
     if not ObjectId.is_valid(id):
         raise HTTPException(status_code=400, detail="Invalid ID format")
 
