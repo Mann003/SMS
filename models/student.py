@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class AddressBase(BaseModel):
@@ -20,6 +20,10 @@ class StudentUpdate(StudentBase):
 class StudentList(BaseModel):
     name: str
     age: int
+
+
+class StudentListResponse(BaseModel):
+    data: List[StudentList]
 
 
 class StudentPostResponse(BaseModel):

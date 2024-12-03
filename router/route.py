@@ -1,7 +1,7 @@
-from typing import Optional, List
+from typing import Optional
 from bson.errors import InvalidId
 from fastapi import APIRouter, Query, HTTPException, Path
-from models.student import StudentUpdate, StudentPostResponse, StudentBase, StudentList
+from models.student import StudentUpdate, StudentPostResponse, StudentBase, StudentListResponse
 from config.database import db
 from bson import ObjectId
 
@@ -18,7 +18,7 @@ async def create_student(student: StudentBase):
     return {"id": str(result.inserted_id)}
 
 
-@studentRouter.get("/students", response_model=List[StudentList], status_code=200)
+@studentRouter.get("/students", response_model=StudentListResponse, status_code=200)
 async def list_students(
         country: Optional[str] = Query(None, description="Filter by country"),
         age: Optional[int] = Query(None, description="Filter by minimum age"),
@@ -32,7 +32,7 @@ async def list_students(
     # Fetch data synchronously and convert to a list
     students_cursor = students_collection.find(query, {"_id": 0, "name": 1, "age": 1})
     students = list(students_cursor)
-    return students
+    return {"data": students}
 
 
 @studentRouter.get("/students/{id}", response_model=StudentBase, status_code=200)
@@ -78,7 +78,7 @@ async def update_student(
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="Student not found")
 
-        return {"message": "Student updated successfully"}
+        return {}
 
     except InvalidId:
         raise HTTPException(status_code=400, detail="Invalid ID format")
@@ -97,4 +97,4 @@ async def delete_student(
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Student not found")
 
-    return {"message": "Student deleted successfully"}
+    return {}
