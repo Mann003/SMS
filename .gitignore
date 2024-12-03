@@ -1,2 +1,4 @@
 .idea/
 SMS.iml
+.env
+__pycache__/
